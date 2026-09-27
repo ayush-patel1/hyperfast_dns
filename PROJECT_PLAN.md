@@ -87,22 +87,44 @@ Grafana (optional), Docker Compose.
 ## 3. Environment and prerequisites
 
 **Measured at M0:** Intel i5-10300H (4 cores / 8 threads), 7.8 GiB RAM, Windows
-11 build 26200. Python 3.14 and Node 22 are installed. **Not available:** C++
-compiler, CMake, Docker CLI, Linux distribution under WSL (only the
-`docker-desktop` WSL distro exists).
+11 build 26200. Python 3.14 and Node 22 are installed on Windows. There is no
+C++ compiler, CMake, or Docker CLI on Windows, and the data plane needs Linux
+APIs anyway (`epoll`, `SO_REUSEPORT`, `recvmmsg`, AF_XDP). All C++ work
+therefore happens in WSL2.
 
-**Blocking prerequisite for M1:** a Linux build environment. Recommended setup:
+**Linux build environment (installed at M0):** WSL2 with Ubuntu 24.04.5 LTS,
+kernel 6.6.87.2-microsoft-standard-WSL2, 8 vCPUs, **3.7 GiB RAM** (the WSL
+default of half the host's memory, relevant to R2/R10).
 
-1. `wsl --install -d Ubuntu-24.04` (one-time; admin rights, may need a reboot).
-2. Inside Ubuntu:
-   `sudo apt install build-essential cmake ninja-build pkg-config libknot-dev libyaml-cpp-dev libspdlog-dev nlohmann-json3-dev libgtest-dev libbenchmark-dev libssl-dev python3-venv dnsutils`
-   (cpp-httplib is vendored as a single header if the distro package is
-   unsuitable).
-3. Keep **build directories inside WSL's own filesystem** (for example
+```
+wsl --install -d Ubuntu-24.04
+sudo apt install build-essential cmake ninja-build pkg-config git libknot-dev libyaml-cpp-dev \
+  libspdlog-dev nlohmann-json3-dev libgtest-dev libgmock-dev libbenchmark-dev libssl-dev \
+  python3-venv python3-pip dnsutils clang-format clang-tidy
+```
+
+| Tool / library | Version |
+|---|---|
+| g++ | 13.3.0 (C++23 verified: test program links against libknot and yaml-cpp) |
+| CMake / Ninja | 3.28.3 / 1.11.1 |
+| clang-format | 18.1.3 |
+| Python (in WSL) | 3.12.3 |
+| libknot-dev | 3.3.4 |
+| libyaml-cpp-dev | 0.8.0 |
+| libspdlog-dev | 1.12.0 |
+| nlohmann-json3-dev | 3.11.3 |
+| libgtest-dev / libbenchmark-dev | 1.14.0 / 1.8.3 |
+| libssl-dev | 3.0.13 |
+| dig | 9.18.39 |
+
+cpp-httplib will be vendored as a single header at M1.
+
+Notes:
+1. Keep **build directories inside WSL's own filesystem** (for example
    `~/build/hfdns`), not under the OneDrive-synced Windows path. Building over
    `/mnt/c` is slow, and OneDrive would try to sync build artifacts. Benchmarks
    must also run from the WSL filesystem.
-4. Docker Desktop is needed from M19 (Compose demo). Before then, everything runs
+2. Docker Desktop is needed from M19 (Compose demo). Before then, everything runs
    natively in WSL.
 
 ---
@@ -164,7 +186,7 @@ Scenarios 01–12 are named as in the specification (`scenario_01_baseline_round
 
 | # | Risk | Likelihood | Impact | Mitigation |
 |---|---|---|---|---|
-| R1 | No C++ toolchain on the dev host | Certain today | Blocks M1 | WSL2 Ubuntu 24.04 prerequisite (§3); Docker image pins the same toolchain |
+| R1 | No C++ toolchain on the Windows host | Resolved at M0 | — | WSL2 Ubuntu 24.04 with GCC 13.3 installed (§3); the Docker image will pin the same toolchain |
 | R2 | 4C/8T, 7.8 GiB host: generator, LB, and backends compete for CPU, so Mode B is capped by the host, not the design | High | Throughput claims | Report Mode A and B separately; CPU pinning; generator saturation flags; document host limits; no dashboard/Prometheus during runs |
 | R3 | WSL2 / Docker Desktop virtualization adds noise and changes kernel behaviour (loopback, AF_XDP generic mode only) | High | Q9 result may be null | Repetitions and CIs; label results "WSL2 loopback"; report a null Q9 result honestly |
 | R4 | libknot GPL-3.0 licence constrains project licensing | Medium | Legal / distribution | Decide the licence at M1; ldns fallback is possible behind the parser adapter |

@@ -404,9 +404,10 @@ consistency assumptions it cannot see.
 - **Target runtime: Linux** (epoll, `SO_REUSEPORT`, `recvmmsg`, AF_XDP). The data
   plane is not built for native Windows.
 - **Development host** (measured at M0): Intel i5-10300H, 4 cores / 8 threads,
-  7.8 GiB RAM, Windows 11 build 26200. C++ builds and benchmarks will run inside
-  WSL2 Ubuntu 24.04, and the full demo inside Docker Compose. All numbers from
-  this host are labelled as virtualized (WSL2) loopback measurements.
+  7.8 GiB RAM, Windows 11 build 26200. C++ builds and benchmarks run inside WSL2
+  Ubuntu 24.04.5 (kernel 6.6, 8 vCPUs, 3.7 GiB RAM), and the full demo inside
+  Docker Compose. All numbers from this host are labelled as virtualized (WSL2)
+  loopback measurements.
 - Benchmark runs start only the load balancer, backends, and load generator,
   pinned to disjoint CPU sets where possible. The dashboard and Prometheus stay
   off during measurement, because with 7.8 GiB RAM and 8 logical CPUs they would
