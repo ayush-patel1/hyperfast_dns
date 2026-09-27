@@ -63,10 +63,15 @@ def show_event(result: RunResult) -> None:
     for col in event.affected_columns[:3]:
         p = event.column_profiles.get(col)
         if p and p.physical_type == "STRING":
-            fmt = p.best_datetime_format
-            print(f"    profile    {col}: {p.integer_like_ratio:.0%} integer-like"
-                  + (f", format {fmt!r}" if fmt else "")
-                  + (f", invalid {p.non_numeric_examples}" if p.non_numeric_examples and p.integer_like_ratio > 0.5 else ""))
+            facts = []
+            if p.integer_like_ratio > 0:
+                facts.append(f"{p.integer_like_ratio:.0%} integer-like")
+                if p.non_numeric_examples:
+                    facts.append(f"invalid {p.non_numeric_examples}")
+            if p.best_datetime_format:
+                facts.append(f"datetime format {p.best_datetime_format!r}")
+            if facts:
+                print(f"    profile    {col}: " + ", ".join(facts))
     print(f"    affected   {event.affected_records} records  fingerprint={event.fingerprint}")
 
 
