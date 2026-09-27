@@ -100,14 +100,15 @@ default of half the host's memory, relevant to R2/R10).
 wsl --install -d Ubuntu-24.04
 sudo apt install build-essential cmake ninja-build pkg-config git libknot-dev libyaml-cpp-dev \
   libspdlog-dev nlohmann-json3-dev libgtest-dev libgmock-dev libbenchmark-dev libssl-dev \
-  python3-venv python3-pip dnsutils clang-format clang-tidy
+  python3-venv python3-pip dnsutils clang-format-19 clang-tidy-19 libcpp-httplib-dev
 ```
 
 | Tool / library | Version |
 |---|---|
 | g++ | 13.3.0 (C++23 verified: test program links against libknot and yaml-cpp) |
 | CMake / Ninja | 3.28.3 / 1.11.1 |
-| clang-format | 18.1.3 |
+| clang-format / clang-tidy | 19.1.1 (`clang-format-19`, `clang-tidy-19`). Version 18 is also installed but not used: clang-tidy 18 cannot parse `std::expected` from GCC 13's libstdc++ |
+| cpp-httplib | 0.14.3 (`libcpp-httplib-dev`) |
 | Python (in WSL) | 3.12.3 |
 | libknot-dev | 3.3.4 |
 | libyaml-cpp-dev | 0.8.0 |
@@ -116,8 +117,6 @@ sudo apt install build-essential cmake ninja-build pkg-config git libknot-dev li
 | libgtest-dev / libbenchmark-dev | 1.14.0 / 1.8.3 |
 | libssl-dev | 3.0.13 |
 | dig | 9.18.39 |
-
-cpp-httplib will be vendored as a single header at M1.
 
 Notes:
 1. Keep **build directories inside WSL's own filesystem** (for example

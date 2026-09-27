@@ -1,0 +1,30 @@
+# Tool configuration and dependency pins for the Python components
+# (control-plane, ml, benchmarks, cross-component integration tests).
+# Python packages are added in the milestones that introduce them (M6+).
+
+[project]
+name = "hfdns"
+version = "0.1.0"
+description = "Hyperfast DNS Load Balancer: control plane, ML, benchmarks, integration tests"
+requires-python = ">=3.12"
+
+[project.optional-dependencies]
+dev = [
+    "pytest==9.1.1",
+    "ruff==0.16.9",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --strict-markers"
+markers = [
+    "integration: drives built binaries (needs the C++ build; see Makefile)",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM", "RUF", "PL", "PT"]
+ignore = ["PLR2004"]  # magic values are expected in test assertions

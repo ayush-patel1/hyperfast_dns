@@ -1,0 +1,33 @@
+# Local development: 4 emulated POPs on loopback, 2 workers.
+# Client regions map to loopback subnets so the load generator can emulate
+# regional populations with real source addresses (ARCHITECTURE §11).
+
+listeners:
+  - { address: 127.0.0.1, port: 5353, transport: udp }
+
+workers: 2
+
+admin:
+  address: 127.0.0.1
+  port: 8053
+
+logging:
+  level: info            # LOG_LEVEL env var overrides this
+
+regions:
+  - { name: india,          client_cidrs: [127.1.0.0/16] }
+  - { name: southeast_asia, client_cidrs: [127.2.0.0/16] }
+  - { name: europe,         client_cidrs: [127.3.0.0/16] }
+  - { name: north_america,  client_cidrs: [127.4.0.0/16] }
+
+backends:
+  - { name: pop-india,     address: 127.0.0.1, port: 5401, weight: 4, site: india }
+  - { name: pop-singapore, address: 127.0.0.1, port: 5402, weight: 3, site: singapore }
+  - { name: pop-germany,   address: 127.0.0.1, port: 5403, weight: 2, site: germany }
+  - { name: pop-us-east,   address: 127.0.0.1, port: 5404, weight: 2, site: us_east }
+
+routing:
+  policy: round_robin
+
+upstream:
+  timeout: 800ms

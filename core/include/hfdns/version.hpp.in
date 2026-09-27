@@ -1,0 +1,7 @@
+#pragma once
+
+namespace hfdns {
+
+inline constexpr const char* kVersion = "@PROJECT_VERSION@";
+
+}  // namespace hfdns
