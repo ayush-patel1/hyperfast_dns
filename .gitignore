@@ -1,29 +1,39 @@
+# C++ build output
+build/
+build-*/
+cmake-build-*/
+compile_commands.json
+*.o
+*.a
+*.so
+
 # Python
 __pycache__/
 *.py[cod]
 .venv/
-venv/
 .pytest_cache/
-.mypy_cache/
 .ruff_cache/
+.mypy_cache/
 *.egg-info/
-.coverage
-htmlcov/
 
-# Node
+# Frontend
 node_modules/
 .next/
 out/
 
-# Runtime data
-data/
-*.duckdb
-*.duckdb.wal
+# ML artifacts that are regenerated (trained models are committed explicitly under ml/models/)
+ml/datasets/generated/
+ml/runs/
 
-# Secrets / env
+# Raw benchmark captures (summaries under benchmarks/results/ are committed)
+benchmarks/results/raw/
+
+# Secrets / local config
 .env
 *.pem
 *.key
+!config/tls/test-*.pem
+!config/tls/test-*.key
 
 # IDE / OS
 .idea/
